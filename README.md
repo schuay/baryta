@@ -190,3 +190,9 @@ CHROMIUM=/usr/bin/chromium npm test   # use a system browser
 The browser tests step through every image of the built site at viewports from
 375x667 to 3440x1440 and check that image and caption are fully visible, nothing
 overflows horizontally and no image is upscaled.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The sample photographs fetched by
+`npm run fetch-example` are in the public domain or CC0 and are not part of the
+repository.
