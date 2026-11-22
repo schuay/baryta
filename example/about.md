@@ -1,12 +1,15 @@
 ---
 title: About
 ---
-This is an example site. Its galleries use public-domain photographs made for
-the Farm Security Administration and the Office of War Information between 1933
-and 1946, held by the Library of Congress.
+This is an example site. Its photographs are in the public domain.
 
-Each gallery shows one level of the configuration format:
+Each gallery shows different features of the configuration:
 
-- *Worthington, Ohio* is a folder with a one-line `gallery.yaml`.
-- *China, 1946* lists its images in order, each with a caption.
-- *American Photographs* uses structured captions and an introduction.
+- *American Photographs* has structured captions (title, year, medium,
+  size), an introduction, a chosen cover image, alt text, and a hairline
+  border on one pale image.
+- *Plant Forms* uses the dark theme and opens with the index.
+- *China, 1946* lists its images in order with a one-line caption each.
+  The scans are of toned prints, so they keep their colour.
+- *Worthington, Ohio* has a one-line `gallery.yaml`. Its captions come
+  from metadata embedded in the image files.

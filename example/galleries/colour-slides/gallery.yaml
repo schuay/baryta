@@ -1,0 +1,14 @@
+# Not listed in site.yaml, so not published. The dev server shows it marked
+# as a draft. These are Kodachrome transparencies: the pipeline detects the
+# colour and keeps it.
+title: Colour slides
+images:
+  - coal.jpg:
+      title: Loading coal into a lake freighter, Sandusky, Ohio
+      year: 1939
+      medium: Transparency, color
+      caption: Jack Delano
+  - headlines.jpg:
+      title: Reading headlines on Christmas Eve, Brockton, Massachusetts
+      year: 1940
+      caption: Jack Delano

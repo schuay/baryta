@@ -1,14 +1,16 @@
 title: American Photographs
-year: 1933–1943
+year: 1929–1943
 cover: times-square.jpg
 intro: |
-  Photographs made for the Farm Security Administration and the Office of
-  War Information. Captions follow the Library of Congress records.
+  Photographs from the 1930s and early 1940s, most of them made for the
+  Farm Security Administration and the Office of War Information. The two
+  Walker Evans prints are in the J. Paul Getty Museum.
 images:
   - shack-town.jpg:
       title: Child in Shack Town
       year: 1936
       caption: Dorothea Lange
+      alt: A girl in a sleeveless dress stands in front of a corrugated metal wall.
   - broke.jpg:
       title: Broke, baby sick, and car trouble!
       caption: Dorothea Lange. Missouri family of five near Tracy, California.
@@ -19,26 +21,31 @@ images:
   - weedpatch.jpg:
       title: Children in a camp between Weedpatch and Lamont, Kern County, California
       caption: Dorothea Lange
+  - boardwalk.jpg:
+      title: Coney Island Boardwalk
+      year: 1929
+      medium: Gelatin silver print
+      size: 21.4 × 14.4 cm
+      caption: Walker Evans
+  - edwards.jpg:
+      title: Railroad Station, Edwards, Mississippi
+      year: 1936
+      medium: Gelatin silver print
+      size: 19.3 × 24.2 cm
+      caption: Walker Evans
   - havana.jpg:
       title: Plaza del Vapor, Havana
       year: 1933
-      caption: Walker Evans
-  - boardwalk.jpg:
-      title: Boardwalk
       caption: Walker Evans
   - cemetery.jpg:
       title: Cemetery at Pointe a la Hache, Louisiana
       year: 1935
       caption: Ben Shahn
+      # Pale image on a white page: a hairline keeps its edge visible.
+      border: hairline
   - bootleggers.jpg:
       title: The day's output, bootleggers, Schuylkill County, Pennsylvania
       year: ca. 1938
-      caption: Jack Delano
-  - coal.jpg:
-      title: Loading coal into a lake freighter, Sandusky, Ohio
-      caption: Jack Delano
-  - headlines.jpg:
-      title: Reading headlines on Christmas Eve, Brockton, Massachusetts
       caption: Jack Delano
   - times-square.jpg:
       title: Times Square on a rainy day

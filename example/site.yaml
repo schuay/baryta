@@ -1,8 +1,24 @@
 title: Example Photographer
+
+# Navigation order. A folder under galleries/ that is not listed here is not
+# published; `npm run dev` shows it as a draft (see galleries/colour-slides).
 galleries:
   - american-photographs
+  - plant-forms
   - china-1946
   - worthington
+
 pages:
   - about.md
-footer: Sample photographs are in the public domain, from the Library of Congress via Wikimedia Commons.
+  - contact.md
+
+footer: Sample photographs are in the public domain, from the Library of Congress, the J. Paul Getty Museum and The Metropolitan Museum of Art via Wikimedia Commons.
+
+# Defaults for every gallery; a gallery or image can override them.
+defaults:
+  theme: light
+  view: sequence
+  border: none
+
+images:
+  max: 2560
