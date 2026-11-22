@@ -3,7 +3,7 @@
 //
 // Some files get an XMP title and description written into them, the way a
 // photo manager would, to show captions read from the image files.
-import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
+import { copyFile, link, mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -37,7 +37,6 @@ const galleries = {
   },
   'china-1946': {
     'junk.jpg': 'Arthur Rothstein - Chinese junk on river ppmsca.07797.jpg',
-    'boat.jpg': 'A Boat On A River With Rolling Hills In The Background In The Kiangsu Province Or Yunnan Province In China (1946) Arthur Rothstein (RESTORED) (4094285750).jpg',
     'mother.jpg': 'Arthur Rothstein - Chinese mother with children ppmsca.07798.jpg',
     'rice.jpg': 'Arthur Rothstein - Rice distribution during Chinese famine ppmsca.07586.jpg',
     'troops.jpg': 'Arthur Rothstein - marching Chinese troops ppmsca.07799.jpg',
@@ -61,6 +60,20 @@ const galleries = {
     'papaver.jpg': 'Karl Blossfeldt. Papaver orientalis, 1928 - 1932.jpg',
     'nigella.jpg': 'Nigella Damascena Spinnenkopf MET DP324361 (cropped).jpg',
   },
+  // Galleries reusing photos from the ones above; files are linked, not downloaded again.
+  'main-street': [
+    'worthington/01-stoop.jpg', 'worthington/02-crank.jpg', 'worthington/03-cranking.jpg', 'worthington/04-model-t.jpg',
+    'american-photographs/bootleggers.jpg', 'american-photographs/shack-town.jpg', 'american-photographs/broke.jpg',
+    'american-photographs/boardwalk.jpg', 'american-photographs/cotton-hoers.jpg', 'american-photographs/edwards.jpg',
+    'american-photographs/cemetery.jpg', 'american-photographs/times-square.jpg',
+    'china-1946/junk.jpg', 'china-1946/troops.jpg', 'china-1946/mother.jpg', 'china-1946/rice.jpg',
+    'plant-forms/acanthus.jpg', 'plant-forms/papaver.jpg',
+  ],
+  pairs: [
+    'worthington/02-crank.jpg', 'worthington/03-cranking.jpg', 'worthington/05-getting-crank.jpg',
+    'american-photographs/havana.jpg', 'american-photographs/shack-town.jpg', 'american-photographs/weedpatch.jpg',
+    'plant-forms/acanthus.jpg', 'plant-forms/papaver.jpg', 'china-1946/mother.jpg', 'china-1946/rice.jpg',
+  ],
   // Not listed in site.yaml: visible in the dev server only.
   'colour-slides': {
     'coal.jpg': 'Loading coal into a lake freighter at the Pennsylvania Railroad docks, Sandusky, Ohio LCCN2017878195.jpg',
@@ -134,6 +147,15 @@ function withXmp(jpeg, meta) {
 for (const [slug, files] of Object.entries(galleries)) {
   const dir = path.join(root, slug);
   await mkdir(dir, { recursive: true });
+  if (Array.isArray(files)) {
+    for (const src of files) {
+      const dest = path.join(dir, path.basename(src));
+      if (await exists(dest)) continue;
+      await link(path.join(root, src), dest).catch(() => copyFile(path.join(root, src), dest));
+      console.log(`${slug}/${path.basename(src)}`);
+    }
+    continue;
+  }
   for (const [name, spec] of Object.entries(files)) {
     const { title, xmp } = typeof spec === 'string' ? { title: spec } : spec;
     const dest = path.join(dir, name);

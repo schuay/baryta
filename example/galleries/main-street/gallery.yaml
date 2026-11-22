@@ -1,0 +1,46 @@
+# A book: each entry of `spreads` is two facing pages. On narrow portrait
+# screens the pages are shown one at a time.
+title: Main Street
+year: 1929–1946
+book:
+  page: 4/5          # page width/height; a spread is 8:5
+  paper: true        # draw the pages; leave out to let them blend into the background
+spreads:
+  # A title page on the right, as when a book is opened.
+  - [~, { text: "# Main Street\n\nAmerican photographs, 1929–1946" }]
+
+  # A bare file name places the image as large as the page margins allow.
+  - [01-stoop.jpg, 02-crank.jpg]
+
+  # One image across both pages.
+  - spread: bootleggers.jpg
+
+  # Bleed fills the page edge to edge and crops; small leaves the page open.
+  - left: { image: shack-town.jpg, scale: bleed }
+    right: { image: broke.jpg, scale: small, align: bottom }
+
+  # Named layouts: pair, stack-2, stack-3, grid-2x2, or your own in site.yaml.
+  - left: ~
+    right: { layout: stack-2, images: [03-cranking.jpg, 04-model-t.jpg] }
+
+  - left: { layout: grid-2x2, images: [junk.jpg, troops.jpg, mother.jpg, rice.jpg] }
+    right: { image: boardwalk.jpg, scale: medium, title: Coney Island Boardwalk, year: 1929 }
+
+  # A coloured page.
+  - [{ fill: "#d9d4c9" }, { image: cotton-hoers.jpg, scale: medium }]
+
+  # Free placement: positions are fractions of the page, [x, y, width, height].
+  - left:
+      - image: edwards.jpg
+        at: [0.12, 0.16, 0.76, 0.5]
+        align: bottom
+        title: Railroad Station, Edwards, Mississippi
+        year: 1936
+      - text: "Walker Evans"
+        at: [0.12, 0.72, 0.76, 0.08]
+    right: { layout: pair, images: [acanthus.jpg, papaver.jpg] }
+
+  # Bleed across the gutter.
+  - spread: { image: cemetery.jpg, scale: bleed }
+
+  - [{ image: times-square.jpg, scale: medium }, ~]

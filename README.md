@@ -50,7 +50,8 @@ images are published. The dev server shows such galleries as drafts.
 
 ### gallery.yaml
 
-Each level adds keys; nothing changes meaning between levels.
+Each level adds keys; nothing changes meaning between levels. The example
+site in `example/` uses all of them.
 
 Level 0, show the folder in filename order:
 
@@ -89,6 +90,49 @@ images:
       alt: Text for screen readers
       border: none
 ```
+
+Level 3, images shown together. A list inside `images` puts its images side
+by side at equal height, each with its caption below:
+
+```yaml
+images:
+  - [left.jpg, middle.jpg: A caption, right.jpg]
+  - single.jpg
+```
+
+Level 4, book spreads. Use `spreads` instead of `images`; each entry is two
+facing pages:
+
+```yaml
+book:
+  page: 4/5            # page width/height (default 4/5)
+  margins: { top: 0.09, bottom: 0.13, inner: 0.08, outer: 0.09 }   # of the page width
+  paper: true          # draw the pages on a grey ground
+spreads:
+  - [~, { text: "# Title" }]                            # blank left page, text on the right
+  - [a.jpg, b.jpg]                                      # one image per page, within the margins
+  - spread: panorama.jpg                                # across the gutter
+  - left: { image: c.jpg, scale: bleed }                # edge to edge, cropped
+    right: { image: d.jpg, scale: small, align: bottom }   # small | medium | large
+  - right: { layout: stack-2, images: [e.jpg, f.jpg] }  # pair, stack-2, stack-3, grid-2x2
+  - [{ fill: "#d9d4c9" }, g.jpg]                        # coloured page
+  - left:                                               # free placement, fractions of the page
+      - { image: h.jpg, at: [0.1, 0.1, 0.8, 0.5], title: Caption }
+      - { text: "Text on the page", at: [0.1, 0.7, 0.8, 0.1] }
+```
+
+`align` is `top`, `bottom`, `left`, `right`, `inner` or `outer` (towards or
+away from the gutter). Caption fields work on `{ image: ... }` entries as on
+level 2. Layouts can be added in `site.yaml`; slots are fractions of the area
+within the margins:
+
+```yaml
+layouts:
+  corner: [{ at: [0.5, 0.5, 0.5, 0.5], align: right }]
+```
+
+On narrow portrait screens, groups and spreads show one image or page at a
+time; images across the gutter stay together.
 
 Without a caption in the config, an image's embedded XMP/IPTC title and
 description (as written by digiKam, Lightroom and similar) are used. EXIF

@@ -12,13 +12,15 @@ interface Props {
   fill?: boolean;
   /** Slug of the current page, to mark its nav link. */
   current?: string;
+  /** Book pages drawn as paper; darkens the ground. */
+  paper?: boolean;
 }
-const { site, title, theme = site.theme, fill = false, current } = Astro.props;
+const { site, title, theme = site.theme, fill = false, current, paper = false } = Astro.props;
 const pageTitle = title ? `${title} — ${site.title}` : site.title;
 ---
 
 <!doctype html>
-<html lang="en" data-theme={theme}>
+<html lang="en" data-theme={theme} data-paper={paper ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />

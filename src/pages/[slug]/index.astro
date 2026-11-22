@@ -19,7 +19,7 @@ const site = await getSite();
 
 {
   gallery && (
-    <Base site={site} title={gallery.title} theme={gallery.theme} fill={gallery.view === 'sequence'}>
+    <Base site={site} title={gallery.title} theme={gallery.theme} paper={gallery.paper} fill={gallery.view === 'sequence'}>
       {gallery.view === 'sequence' ? <Sequence gallery={gallery} siteTitle={site.title} /> : <Grid gallery={gallery} siteTitle={site.title} />}
     </Base>
   )

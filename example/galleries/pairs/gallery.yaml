@@ -1,0 +1,11 @@
+# A list inside `images` shows its images together at equal height.
+title: Pairs and Series
+intro: |
+  Images in a list are shown side by side at equal height. On narrow
+  portrait screens they are shown one at a time.
+images:
+  - [02-crank.jpg, 03-cranking.jpg, 05-getting-crank.jpg]
+  - havana.jpg: Walker Evans, Havana, 1933
+  - [acanthus.jpg: Acanthus mollis, papaver.jpg: Papaver orientalis]
+  - [shack-town.jpg, weedpatch.jpg]
+  - [mother.jpg, rice.jpg]

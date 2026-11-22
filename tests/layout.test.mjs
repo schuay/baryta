@@ -35,6 +35,43 @@ async function galleries(page) {
   return page.$$eval('.contents a', (as) => as.map((a) => new URL(a.href).pathname));
 }
 
+/** Step count and the index of the current step, as the sequence script sees them. */
+function stepState() {
+  const isStep = (el) => {
+    const cs = getComputedStyle(el);
+    return cs.display !== 'contents' && cs.display !== 'none' && cs.scrollSnapAlign !== 'none';
+  };
+  const steps = [...document.querySelectorAll('.track .frame, .track .column')].filter(isStep);
+  return { count: steps.length, index: steps.findIndex((s) => s.hasAttribute('data-current')) };
+}
+
+/** Geometry of the current step: images, visible captions and page numbers, and its boxes. */
+function measure() {
+  const step = document.querySelector('.track [data-current]');
+  const shown = (el) => getComputedStyle(el).display !== 'none' && el.getClientRects().length > 0;
+  const rect = (el) => {
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height };
+  };
+  const boxes = [...step.querySelectorAll('.box')].filter(shown).map(rect);
+  return {
+    label: step.getAttribute('aria-label') ?? `column of ${step.dataset.number}`,
+    images: [...step.querySelectorAll('img')].map((img) => ({
+      ...rect(img),
+      cover: img.classList.contains('cover'),
+      source: Number(img.dataset.sourceWidth),
+    })),
+    text: [...step.querySelectorAll('.cap, .folio')].filter(shown).map(rect),
+    box: boxes.length && {
+      width: Math.max(...boxes.map((b) => b.right)) - Math.min(...boxes.map((b) => b.left)),
+      height: Math.max(...boxes.map((b) => b.bottom)) - Math.min(...boxes.map((b) => b.top)),
+    },
+    vw: innerWidth,
+    vh: innerHeight,
+    overflow: document.documentElement.scrollWidth > innerWidth,
+  };
+}
+
 test('sequence layout at every viewport', { skip }, async () => {
   const page0 = await browser.newPage();
   const paths = await galleries(page0);
@@ -45,33 +82,38 @@ test('sequence layout at every viewport', { skip }, async () => {
     const ctx = await browser.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch });
     const page = await ctx.newPage();
     for (const p of paths) {
-      await page.goto(`${base}${p}#1`, { waitUntil: 'networkidle' });
-      const count = await page.$$eval('.frame[data-number]', (fs) => fs.length);
-      if (count === 0) continue; // grid-first gallery
-      for (let n = 1; n <= count; n++) {
-        const where = `${p}#${n} at ${width}x${height}`;
-        await page.waitForFunction((n) => location.hash === `#${n}`, n);
-        const m = await page.evaluate(() => {
-          const frame = [...document.querySelectorAll('.frame')].find((f) => !f.inert);
-          const img = frame.querySelector('img');
-          const r = img.getBoundingClientRect();
-          const c = frame.querySelector('figcaption').getBoundingClientRect();
-          const natural = Number(getComputedStyle(frame.querySelector('.plate')).getPropertyValue('--natural').replace('px', ''));
-          return {
-            img: { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width },
-            caption: { bottom: c.bottom, right: c.right },
-            vw: innerWidth, vh: innerHeight, natural,
-            overflow: document.documentElement.scrollWidth > innerWidth,
-          };
-        });
+      await page.goto(`${base}${p}`, { waitUntil: 'networkidle' });
+      if (!(await page.$('.sequence'))) continue; // grid-first gallery
+      const { count } = await page.evaluate(stepState);
+      for (let i = 0; i < count; i++) {
+        await page.waitForFunction(() => document.querySelectorAll('.track [data-current]').length === 1);
+        const state = await page.evaluate(stepState);
+        assert.equal(state.index, i, `${p} at ${width}x${height}: expected step ${i}, at ${state.index}`);
+        const m = await page.evaluate(measure);
+        const where = `${p} step ${i} (${m.label}) at ${width}x${height}`;
         const eps = 1;
+        const inside = (r) => r.left >= -eps && r.top >= -eps && r.right <= m.vw + eps && r.bottom <= m.vh + eps;
         assert.ok(!m.overflow, `horizontal overflow: ${where}`);
-        assert.ok(m.img.left >= -eps && m.img.right <= m.vw + eps, `image outside viewport horizontally: ${where}`);
-        assert.ok(m.img.top >= -eps && m.img.bottom <= m.vh + eps, `image outside viewport vertically: ${where}`);
-        assert.ok(m.caption.bottom <= m.vh + eps, `caption cut off: ${where}`);
-        assert.ok(m.img.width <= m.natural + eps, `image upscaled: ${where}`);
-        assert.ok(m.img.width >= Math.min(200, m.vw / 3), `image implausibly small (${m.img.width}px): ${where}`);
-        if (n < count) await page.keyboard.press('ArrowRight');
+        for (const img of m.images) {
+          assert.ok(inside(img), `image outside the viewport: ${where}`);
+          if (!img.cover) assert.ok(img.width <= img.source + eps, `image upscaled: ${where}`);
+        }
+        for (const t of m.text) assert.ok(inside(t), `caption or page number cut off: ${where}`);
+        if (m.box) {
+          const usesSpace = m.box.width >= 0.45 * m.vw || m.box.height >= 0.45 * m.vh;
+          assert.ok(usesSpace, `frame implausibly small (${Math.round(m.box.width)}x${Math.round(m.box.height)}): ${where}`);
+        }
+        if (i < count - 1) {
+          await page.keyboard.press('ArrowRight');
+          await page.waitForFunction((i) => {
+            const isStep = (el) => {
+              const cs = getComputedStyle(el);
+              return cs.display !== 'contents' && cs.display !== 'none' && cs.scrollSnapAlign !== 'none';
+            };
+            const steps = [...document.querySelectorAll('.track .frame, .track .column')].filter(isStep);
+            return steps.findIndex((s) => s.hasAttribute('data-current')) === i + 1;
+          }, i);
+        }
       }
     }
     await ctx.close();
@@ -98,7 +140,7 @@ test('grid links open the sequence at the clicked image', { skip }, async () => 
   await page.goto(`${base}${p}grid/`);
   await page.locator('.grid a').nth(2).click();
   await page.waitForFunction(() => location.hash === '#3');
-  const label = await page.evaluate(() => [...document.querySelectorAll('.frame')].find((f) => !f.inert).getAttribute('aria-label'));
+  const label = await page.evaluate(() => document.querySelector('.track [data-current]').getAttribute('aria-label'));
   assert.match(label, /^3 of /);
   await page.keyboard.press('ArrowLeft');
   await page.waitForFunction(() => location.hash === '#2');

@@ -24,6 +24,7 @@ const fallback = img.variants.find((v) => v.width >= 1200) ?? img.variants.at(-1
     sizes={sizes}
     width={img.width}
     height={img.height}
+    data-source-width={img.width}
     alt={alt}
     loading={loading}
     decoding="async"

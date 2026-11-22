@@ -19,6 +19,6 @@ const { gallery, view } = Astro.props as { gallery: Gallery; view: View };
 const site = await getSite();
 ---
 
-<Base site={site} title={gallery.title} theme={gallery.theme} fill={view === 'sequence'}>
+<Base site={site} title={gallery.title} theme={gallery.theme} paper={gallery.paper} fill={view === 'sequence'}>
   {view === 'sequence' ? <Sequence gallery={gallery} siteTitle={site.title} /> : <Grid gallery={gallery} siteTitle={site.title} />}
 </Base>

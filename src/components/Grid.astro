@@ -1,6 +1,6 @@
 ---
 import type { Gallery } from '../lib/model.ts';
-import Picture from './Picture.astro';
+import Plate from './Plate.astro';
 import GalleryBar from './GalleryBar.astro';
 import { viewHref } from '../lib/routes.ts';
 
@@ -10,26 +10,22 @@ interface Props {
 }
 const { gallery: g, siteTitle } = Astro.props;
 const seq = viewHref(g, 'sequence');
+const plates = g.frames.filter((f) => f.kind === 'plate');
+// Cells take the shape of the widest frame, between square and 2:1, so
+// spreads and groups are not shrunk into squares.
+const cell = Math.min(2, Math.max(1, ...plates.map((f) => f.aspect)));
 ---
 
 <GalleryBar gallery={g} view="grid" siteTitle={siteTitle} />
 {g.introHtml && <div class="intro prose" set:html={g.introHtml} />}
-<ol class="grid">
+<ol class="grid" style={`--cell: ${cell.toFixed(4)}`}>
   {
-    g.frames.map(
-      (f, i) =>
-        f.kind === 'image' && (
-          <li>
-            <a href={`${seq}#${f.number}`} aria-label={`${f.number}: ${f.alt}`}>
-              <Picture
-                img={f.image}
-                alt=""
-                sizes="(max-width: 640px) 45vw, 260px"
-                loading={i < 12 ? 'eager' : 'lazy'}
-              />
-            </a>
-          </li>
-        ),
-    )
+    plates.map((f, i) => (
+      <li>
+        <a href={`${seq}#${f.number}`} aria-label={`${f.number} of ${plates.length}`}>
+          <Plate frame={f} mode="thumb" eager={i < 12} />
+        </a>
+      </li>
+    ))
   }
 </ol>

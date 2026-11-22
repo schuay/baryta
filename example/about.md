@@ -13,3 +13,6 @@ Each gallery shows different features of the configuration:
   The scans are of toned prints, so they keep their colour.
 - *Worthington, Ohio* has a one-line `gallery.yaml`. Its captions come
   from metadata embedded in the image files.
+- *Main Street* is a book: two-page spreads with images across the gutter,
+  bleeds, small images, named layouts, a coloured page and free placement.
+- *Pairs and Series* shows images side by side at equal height.

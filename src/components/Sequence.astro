@@ -1,7 +1,6 @@
 ---
 import type { Gallery } from '../lib/model.ts';
-import Picture from './Picture.astro';
-import Caption from './Caption.astro';
+import Plate from './Plate.astro';
 import GalleryBar from './GalleryBar.astro';
 import { viewHref } from '../lib/routes.ts';
 
@@ -12,7 +11,7 @@ interface Props {
 const { gallery: g, siteTitle } = Astro.props;
 // The page number always occupies the first caption line.
 const capLines = Math.max(1, g.captionLines);
-const firstImage = g.frames.findIndex((f) => f.kind === 'image');
+const firstPlate = g.frames.findIndex((f) => f.kind === 'plate');
 ---
 
 <GalleryBar gallery={g} view="sequence" siteTitle={siteTitle} />
@@ -21,7 +20,6 @@ const firstImage = g.frames.findIndex((f) => f.kind === 'image');
   aria-roledescription="carousel"
   aria-label={g.title}
   style={`--cap-lines: ${capLines}`}
-  data-first-image={firstImage}
   data-index-href={viewHref(g, 'grid')}
 >
   <div class="track" tabindex="0">
@@ -31,31 +29,19 @@ const firstImage = g.frames.findIndex((f) => f.kind === 'image');
           class="frame"
           role="group"
           aria-roledescription="slide"
-          aria-label={f.kind === 'image' ? `${f.number} of ${g.imageCount}` : 'Introduction'}
-          data-number={f.kind === 'image' ? f.number : undefined}
+          aria-label={f.kind === 'plate' ? `${f.number} of ${g.plateCount}` : 'Introduction'}
+          data-number={f.kind === 'plate' ? f.number : undefined}
+          data-split={f.kind === 'plate' && f.splittable ? '' : undefined}
         >
           <div class="stage">
-            {f.kind === 'image' && (
-              <figure
-                class="plate"
-                data-border={f.border}
-                data-wide={f.image.width / f.image.height >= 1.6 ? '' : undefined}
-                style={`--ar: ${(f.image.width / f.image.height).toFixed(5)}; --natural: ${f.image.width}px`}
-              >
-                <Picture
-                  img={f.image}
-                  alt={f.alt}
-                  sizes={`min(calc(100vw - 32px), calc((100vh - 220px) * ${(f.image.width / f.image.height).toFixed(4)}), 1680px)`}
-                  loading={Math.abs(i - firstImage) <= 1 ? 'eager' : 'lazy'}
-                  fetchpriority={i === firstImage ? 'high' : undefined}
-                />
-                <figcaption>
-                  <Caption caption={f.caption} />
-                  <span class="folio">
-                    {f.number}&thinsp;/&thinsp;{g.imageCount}
-                  </span>
-                </figcaption>
-              </figure>
+            {f.kind === 'plate' && (
+              <Plate
+                frame={f}
+                mode="stage"
+                count={g.plateCount}
+                eager={Math.abs(i - firstPlate) <= 1}
+                priority={i === firstPlate}
+              />
             )}
             {f.kind === 'text' && <div class="text-frame prose" set:html={f.html} />}
           </div>
@@ -67,9 +53,12 @@ const firstImage = g.frames.findIndex((f) => f.kind === 'image');
     // Jump to #n before first paint; the module script takes over afterwards.
     {
       const track = document.currentScript.previousElementSibling;
-      const seq = track.parentElement;
       const n = parseInt(location.hash.slice(1), 10);
-      if (n > 0) track.scrollLeft = (n - 1 + Number(seq.dataset.firstImage)) * track.clientWidth;
+      const target = [...track.querySelectorAll(`[data-number="${n}"]`)].find((el) => {
+        const cs = getComputedStyle(el);
+        return cs.display !== 'contents' && cs.display !== 'none' && cs.scrollSnapAlign !== 'none';
+      });
+      if (target) track.scrollLeft = target.offsetLeft;
     }
   </script>
   <button class="step prev" type="button" aria-label="Previous">

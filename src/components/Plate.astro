@@ -1,0 +1,101 @@
+---
+// A plate frame: columns of placed regions, with captions below each column
+// in the sequence view. All geometry comes precomputed from the model.
+import type { Column, PlateFrame, Region } from '../lib/model.ts';
+import Picture from './Picture.astro';
+import Caption from './Caption.astro';
+
+interface Props {
+  frame: PlateFrame;
+  /** stage: sequence view with captions; thumb: index cell. */
+  mode: 'stage' | 'thumb';
+  /** Total plates, for the page number. */
+  count?: number;
+  eager?: boolean;
+  priority?: boolean;
+}
+const { frame: f, mode, count = 0, eager = false, priority = false } = Astro.props;
+
+const pct = (v: number) => `${(v * 100).toFixed(4)}%`;
+const n = (v: number) => v.toFixed(4);
+
+/** Width the region's image is drawn at, as a fraction of a box of aspect `boxAspect` and width 1. */
+function drawnFraction(r: Region, boxWidth: number, boxAspect: number): number {
+  if (r.content.kind !== 'image') return 0;
+  const [, , w, h] = r.box;
+  const ar = r.content.image.width / r.content.image.height;
+  return r.content.fit === 'cover' ? Math.max(w * boxWidth, (h * ar) / boxAspect) : w * boxWidth;
+}
+
+// Mirrors the CSS sizing in global.css; an overestimate only fetches a larger file.
+function sizes(r: Region, c: Column): string {
+  if (mode === 'thumb') {
+    const fr = n(drawnFraction(r, c.w, f.aspect));
+    return `(max-width: 640px) calc(${fr} * 90vw), calc(${fr} * 480px)`;
+  }
+  const plate = `min(calc(100vw - 32px), calc((100vh - 220px) * ${n(f.aspect)}), 1680px, ${f.naturalWidth}px)`;
+  const wide = `calc(${n(drawnFraction(r, c.w, f.aspect))} * ${plate})`;
+  if (!f.splittable) return wide;
+  const column = `min(calc(100vw - 32px), calc((100vh - 200px) * ${n(c.aspect)}))`;
+  return `(max-width: 700px) and (orientation: portrait) calc(${n(drawnFraction(r, 1, c.aspect))} * ${column}), ${wide}`;
+}
+
+const singleWide = f.columns.length === 1 && f.aspect >= 1.6;
+---
+
+<div
+  class="plate"
+  data-columns={f.columns.length}
+  data-wide={singleWide ? '' : undefined}
+  style={`--A: ${n(f.aspect)}; --natural: ${f.naturalWidth}px`}
+>
+  {
+    f.columns.map((c) => (
+      <figure
+        class="column"
+        data-number={f.number}
+        data-empty={c.regions.length === 0 ? '' : undefined}
+        style={`--x: ${n(c.x)}; --w: ${n(c.w)}; --ca: ${n(c.aspect)}; --ct: ${n(c.captionTop)}; --cl: ${n(c.captionLeft)}`}
+      >
+        <div class="leaf">
+          <div class="box" data-page={c.page}>
+            {c.regions.map((r) => (
+              <div
+                class:list={['region', `region-${r.content.kind}`]}
+                data-border={r.content.kind === 'image' ? r.content.border : undefined}
+                style={
+                  `left: ${pct(r.box[0])}; top: ${pct(r.box[1])}; width: ${pct(r.box[2])}; height: ${pct(r.box[3])}` +
+                  (r.content.kind === 'fill' ? `; background: ${r.content.color}` : '')
+                }
+              >
+                {r.content.kind === 'image' && (
+                  <Picture
+                    img={r.content.image}
+                    alt={mode === 'thumb' ? '' : r.content.alt}
+                    sizes={sizes(r, c)}
+                    loading={eager ? 'eager' : 'lazy'}
+                    fetchpriority={priority ? 'high' : undefined}
+                    class={r.content.fit === 'cover' ? 'cover' : undefined}
+                  />
+                )}
+                {r.content.kind === 'text' && <div class="prose" set:html={r.content.html} />}
+              </div>
+            ))}
+          </div>
+          {mode === 'stage' && c.captions.length > 0 && (
+            <figcaption class="cap">
+              {c.captions.map((cap) => (
+                <Caption caption={cap} />
+              ))}
+            </figcaption>
+          )}
+          {mode === 'stage' && (
+            <span class="folio">
+              {f.number}&thinsp;/&thinsp;{count}
+            </span>
+          )}
+        </div>
+      </figure>
+    ))
+  }
+</div>

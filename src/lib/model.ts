@@ -1,5 +1,9 @@
 // The normalized site model. Every config form is expanded into these types;
 // templates only consume this model.
+//
+// Single images, groups and book spreads all become a PlateFrame: a box of
+// fixed aspect ratio divided into columns (the images of a group, the pages of
+// a spread), each holding regions placed in fractions of the column.
 
 export type Theme = 'light' | 'dark';
 export type View = 'sequence' | 'grid';
@@ -31,14 +35,61 @@ export interface Caption {
   text?: string;
 }
 
-export interface ImageFrame {
-  kind: 'image';
-  /** 1-based position among the gallery's images. */
+/** x, y, width, height as fractions of the containing box. */
+export type Box = [number, number, number, number];
+
+export type Content =
+  | {
+      kind: 'image';
+      image: Img;
+      alt: string;
+      border: Border;
+      /** cover crops the image to the region (bleed); contain shows all of it. */
+      fit: 'contain' | 'cover';
+    }
+  | { kind: 'fill'; color: string }
+  | { kind: 'text'; html: string };
+
+export interface Region {
+  /** Relative to the column. */
+  box: Box;
+  content: Content;
+}
+
+export interface Column {
+  /** Horizontal extent as fractions of the frame width. */
+  x: number;
+  w: number;
+  /** Width/height of the column. */
+  aspect: number;
+  /** Set for the pages of a spread. */
+  page?: 'left' | 'right';
+  regions: Region[];
+  /** Captions of the images in this column, in reading order. */
+  captions: Caption[];
+  /**
+   * Where captions start: below the lowest image or text, as a fraction of the
+   * column height, and at the left edge of the leftmost image, as a fraction of
+   * its width.
+   */
+  captionTop: number;
+  captionLeft: number;
+}
+
+export interface PlateFrame {
+  kind: 'plate';
+  /** 1-based position among the gallery's plates. */
   number: number;
-  image: Img;
-  caption?: Caption;
-  alt: string;
-  border: Border;
+  /** Width/height of the whole frame. */
+  aspect: number;
+  columns: Column[];
+  /**
+   * Widest the frame may be drawn, in CSS pixels, without upscaling any of its
+   * images beyond their source resolution.
+   */
+  naturalWidth: number;
+  /** On narrow portrait screens, show the columns one at a time. */
+  splittable: boolean;
 }
 
 export interface TextFrame {
@@ -46,21 +97,7 @@ export interface TextFrame {
   html: string;
 }
 
-/** Fixed-aspect page or spread with placed regions. Not produced yet. */
-export interface CanvasFrame {
-  kind: 'canvas';
-  aspect: number;
-  pages: 1 | 2;
-  regions: Region[];
-}
-
-export interface Region {
-  /** Fractions of the frame: x, y, width, height. */
-  box: [number, number, number, number];
-  content: { image: Img; fit: 'contain' | 'cover' } | { fill: string } | { html: string };
-}
-
-export type Frame = ImageFrame | TextFrame | CanvasFrame;
+export type Frame = PlateFrame | TextFrame;
 
 export interface Gallery {
   slug: string;
@@ -69,10 +106,13 @@ export interface Gallery {
   introHtml?: string;
   view: View;
   theme: Theme;
+  /** Draw book pages as paper. */
+  paper: boolean;
   cover: Img;
   frames: Frame[];
+  plateCount: number;
   imageCount: number;
-  /** Caption block height in lines, the maximum over all frames. */
+  /** Caption block height in lines, the maximum over all columns. */
   captionLines: number;
   draft: boolean;
 }

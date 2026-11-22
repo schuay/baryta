@@ -4,6 +4,8 @@ title: Example Photographer
 # published; `npm run dev` shows it as a draft (see galleries/colour-slides).
 galleries:
   - american-photographs
+  - main-street
+  - pairs
   - plant-forms
   - china-1946
   - worthington
