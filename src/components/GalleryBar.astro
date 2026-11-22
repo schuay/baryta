@@ -5,14 +5,12 @@ import { VIEW_LABELS, viewHref } from '../lib/routes.ts';
 interface Props {
   gallery: Gallery;
   view: View;
-  siteTitle: string;
 }
-const { gallery: g, view, siteTitle } = Astro.props;
+const { gallery: g, view } = Astro.props;
 const views: View[] = ['sequence', 'grid'];
 ---
 
 <div class="gallery-bar">
-  <a class="bar-home" href="/">{siteTitle}</a>
   <h1 class="gallery-title">
     {g.title}
     {g.visibility === 'draft' && <span class="draft">Draft, not published</span>}

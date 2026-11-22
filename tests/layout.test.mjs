@@ -1,6 +1,7 @@
 // Browser checks against a built site (npm run build first). Steps through every
 // image of every gallery at a range of viewports and checks the layout rules:
-// image and caption fully visible, no horizontal overflow, no upscaling.
+// image and caption fully visible, sequence bar visible below them, no
+// horizontal overflow, no upscaling.
 //
 // Set CHROMIUM to a browser binary to use instead of Playwright's own.
 import { test, before, after } from 'node:test';
@@ -62,6 +63,7 @@ function measure() {
       source: Number(img.dataset.sourceWidth),
     })),
     text: [...step.querySelectorAll('.cap, .folio')].filter(shown).map(rect),
+    bar: rect(document.querySelector('.sequence-bar')),
     box: boxes.length && {
       width: Math.max(...boxes.map((b) => b.right)) - Math.min(...boxes.map((b) => b.left)),
       height: Math.max(...boxes.map((b) => b.bottom)) - Math.min(...boxes.map((b) => b.top)),
@@ -99,6 +101,10 @@ test('sequence layout at every viewport', { skip }, async () => {
           if (!img.cover) assert.ok(img.width <= img.source + eps, `image upscaled: ${where}`);
         }
         for (const t of m.text) assert.ok(inside(t), `caption or page number cut off: ${where}`);
+        assert.ok(inside(m.bar), `sequence bar cut off: ${where}`);
+        for (const r of [...m.images, ...m.text]) {
+          assert.ok(r.bottom <= m.bar.top + eps, `image or caption overlaps the sequence bar: ${where}`);
+        }
         if (m.box) {
           const usesSpace = m.box.width >= 0.45 * m.vw || m.box.height >= 0.45 * m.vh;
           assert.ok(usesSpace, `frame implausibly small (${Math.round(m.box.width)}x${Math.round(m.box.height)}): ${where}`);

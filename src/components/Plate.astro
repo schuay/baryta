@@ -33,11 +33,11 @@ function sizes(r: Region, c: Column): string {
     const fr = n(drawnFraction(r, c.w, f.aspect));
     return `(max-width: 640px) calc(${fr} * 90vw), calc(${fr} * 480px)`;
   }
-  const plate = `min(calc(100vw - 32px), calc((100vh - 220px) * ${n(f.aspect)}), 1680px, ${f.naturalWidth}px)`;
+  const plate = `min(calc(100vw - 32px), calc((100vh - 160px) * ${n(f.aspect)}), 1680px, ${f.naturalWidth}px)`;
   const wide = `calc(${n(drawnFraction(r, c.w, f.aspect))} * ${plate})`;
   if (!f.splittable) return wide;
-  const column = `min(calc(100vw - 32px), calc((100vh - 200px) * ${n(c.aspect)}))`;
-  return `(max-width: 700px) and (orientation: portrait) calc(${n(drawnFraction(r, 1, c.aspect))} * ${column}), ${wide}`;
+  const column = `min(calc(100vw - 32px), calc((100vh - 140px) * ${n(c.aspect)}))`;
+  return `(orientation: portrait) calc(${n(drawnFraction(r, 1, c.aspect))} * ${column}), ${wide}`;
 }
 
 const singleWide = f.columns.length === 1 && f.aspect >= 1.6;

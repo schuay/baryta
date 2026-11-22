@@ -1,7 +1,7 @@
 ---
 import type { Gallery } from '../lib/model.ts';
 import Plate from './Plate.astro';
-import GalleryBar from './GalleryBar.astro';
+import SequenceBar from './SequenceBar.astro';
 import { viewHref } from '../lib/routes.ts';
 
 interface Props {
@@ -14,7 +14,6 @@ const capLines = Math.max(1, g.captionLines);
 const firstPlate = g.frames.findIndex((f) => f.kind === 'plate');
 ---
 
-<GalleryBar gallery={g} view="sequence" siteTitle={siteTitle} />
 <section
   class="sequence"
   aria-roledescription="carousel"
@@ -68,6 +67,7 @@ const firstPlate = g.frames.findIndex((f) => f.kind === 'plate');
     <svg viewBox="0 0 16 40" aria-hidden="true"><polyline points="2,2 14,20 2,38"></polyline></svg>
   </button>
 </section>
+<SequenceBar gallery={g} siteTitle={siteTitle} />
 
 <script>
   import { initSequence } from '../scripts/sequence.ts';

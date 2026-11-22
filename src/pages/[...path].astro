@@ -42,7 +42,7 @@ const site = await getSite();
       {props.view === 'sequence' ? (
         <Sequence gallery={props.gallery} siteTitle={site.title} />
       ) : (
-        <Grid gallery={props.gallery} siteTitle={site.title} />
+        <Grid gallery={props.gallery} />
       )}
     </Base>
   ) : (

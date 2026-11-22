@@ -88,7 +88,7 @@ export interface PlateFrame {
    * images beyond their source resolution.
    */
   naturalWidth: number;
-  /** On narrow portrait screens, show the columns one at a time. */
+  /** On portrait screens, show the columns one at a time. */
   splittable: boolean;
 }
 

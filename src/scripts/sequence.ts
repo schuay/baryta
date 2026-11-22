@@ -2,7 +2,7 @@
 // keys, buttons, click halves, #n URLs and preloading of neighbours.
 //
 // A step is whatever the CSS currently makes a snap target: a whole frame, or
-// on narrow portrait screens a single column (page or image) of a split frame.
+// on portrait screens a single column (page or image) of a split frame.
 
 function isStep(el: HTMLElement): boolean {
   const cs = getComputedStyle(el);

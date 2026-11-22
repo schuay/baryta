@@ -1,0 +1,34 @@
+---
+// The sequence view's only chrome, below the images: home link, gallery title
+// and a link to the index.
+import type { Gallery } from '../lib/model.ts';
+import { VIEW_LABELS, otherView, viewHref } from '../lib/routes.ts';
+
+interface Props {
+  gallery: Gallery;
+  siteTitle: string;
+}
+const { gallery: g, siteTitle } = Astro.props;
+const other = otherView('sequence');
+// A gallery named like the site links home under its own title.
+const titleIsHome = g.title === siteTitle;
+---
+
+<div class="sequence-bar">
+  {
+    !titleIsHome && (
+      <>
+        <a class="bar-home" href="/">{siteTitle}</a>
+        <span class="bar-sep" aria-hidden="true">/</span>
+      </>
+    )
+  }
+  <h1 class="gallery-title">
+    {titleIsHome ? <a href="/">{g.title}</a> : g.title}
+    {g.visibility === 'draft' && <span class="draft">Draft, not published</span>}
+    {import.meta.env.DEV && g.visibility === 'private' && <span class="draft">Private link</span>}
+  </h1>
+  <nav class="view-nav" aria-label="View">
+    <a href={viewHref(g, other)}>{VIEW_LABELS[other]}</a>
+  </nav>
+</div>

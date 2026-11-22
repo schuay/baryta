@@ -8,7 +8,7 @@ interface Props {
   site: Site;
   title?: string;
   theme?: Theme;
-  /** Fit the page to the viewport without page scrolling (sequence view). */
+  /** Fit the page to the viewport without page scrolling, and leave out the masthead (sequence view). */
   fill?: boolean;
   /** Slug of the current page, to mark its nav link. */
   current?: string;
@@ -32,20 +32,24 @@ const pageTitle = title ? `${title} — ${site.title}` : site.title;
     {unlisted && <meta name="referrer" content="no-referrer" />}
   </head>
   <body class:list={{ fill }}>
-    <header class="masthead">
-      <a class="site-title" href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>{site.title}</a>
-      {
-        site.pages.length > 0 && (
-          <nav class="site-nav" aria-label="Site">
-            {site.pages.map((p) => (
-              <a href={`/${p.slug}/`} aria-current={current === p.slug ? 'page' : undefined}>
-                {p.title}
-              </a>
-            ))}
-          </nav>
-        )
-      }
-    </header>
+    {
+      !fill && (
+        <header class="masthead">
+          <a class="site-title" href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>
+            {site.title}
+          </a>
+          {site.pages.length > 0 && (
+            <nav class="site-nav" aria-label="Site">
+              {site.pages.map((p) => (
+                <a href={`/${p.slug}/`} aria-current={current === p.slug ? 'page' : undefined}>
+                  {p.title}
+                </a>
+              ))}
+            </nav>
+          )}
+        </header>
+      )
+    }
     <main>
       <slot />
     </main>

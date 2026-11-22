@@ -138,10 +138,6 @@ picture {
   font-size: var(--s-small);
 }
 
-.bar-home {
-  display: none;
-}
-
 .gallery-title {
   font-size: var(--s-small);
   font-weight: inherit;
@@ -157,6 +153,38 @@ picture {
 .view-nav {
   display: flex;
   gap: 1.5em;
+}
+
+/* Sequence bar: the sequence view has no masthead, only this line below the
+   images. */
+
+.sequence-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0 var(--gutter) clamp(10px, 2.5vh, 28px);
+  font-size: var(--s-small);
+  white-space: nowrap;
+}
+
+.bar-home,
+.bar-sep {
+  color: var(--quiet);
+}
+
+.bar-home:hover {
+  color: var(--ink);
+}
+
+.sequence-bar .gallery-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sequence-bar .view-nav {
+  margin-left: auto;
+  padding-left: 2em;
 }
 
 /* Sequence view */
@@ -191,7 +219,7 @@ picture {
   min-width: 0;
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  padding: clamp(12px, 3vh, 40px) var(--gutter) clamp(16px, 4.5vh, 56px);
+  padding: clamp(12px, 3vh, 40px) var(--gutter) clamp(8px, 2vh, 24px);
 }
 
 .stage {
@@ -390,10 +418,19 @@ picture {
   }
 }
 
-/* Narrow portrait screens: groups and spreads show one column (image or page)
-   at a time. Frame, stage and plate drop out of the box tree so the columns
+/* Without step buttons the sequence needs no wide margin. --gutter is
+   redeclared so that it picks up the narrower --mx. */
+@media (hover: none) {
+  body.fill {
+    --mx: clamp(16px, 3vw, 40px);
+    --gutter: max(var(--mx), (100% - var(--max-w)) / 2);
+  }
+}
+
+/* Portrait screens: groups and spreads show one column (image or page) at a
+   time. Frame, stage and plate drop out of the box tree so the columns
    become the snap targets; blank pages are skipped. */
-@media (max-width: 700px) and (orientation: portrait) {
+@media (orientation: portrait) {
   .frame[data-split],
   .frame[data-split] > .stage,
   .frame[data-split] .plate {
@@ -408,7 +445,7 @@ picture {
     min-width: 0;
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    padding: clamp(12px, 3vh, 40px) var(--gutter) clamp(16px, 4.5vh, 56px);
+    padding: clamp(12px, 3vh, 40px) var(--gutter) clamp(8px, 2vh, 24px);
     container-type: size;
     display: grid;
     place-items: center;
@@ -548,21 +585,13 @@ picture {
 }
 
 /* Short landscape screens, e.g. phones on their side: give the image the
-   height. The masthead folds into the gallery bar, and captions of all but
-   wide images move beside the image. */
+   height. Captions of all but wide images move beside the image. */
 @media (max-height: 520px) and (orientation: landscape) {
-  body.fill .masthead {
-    display: none;
-  }
-  body.fill .bar-home {
-    display: inline;
-    margin-right: auto;
-  }
-  body.fill .gallery-bar {
-    padding-top: 10px;
-  }
   body.fill .frame {
     padding-block: 10px;
+  }
+  .sequence-bar {
+    padding-bottom: 8px;
   }
   /* Groups and spreads keep their size: captions give way to the page number. */
   .plate:not([data-columns='1']) {

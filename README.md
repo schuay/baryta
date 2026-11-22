@@ -146,8 +146,8 @@ layouts:
   corner: [{ at: [0.5, 0.5, 0.5, 0.5], align: right }]
 ```
 
-On narrow portrait screens, groups and spreads show one image or page at a
-time; images across the gutter stay together.
+On portrait screens, groups and spreads show one image or page at a time;
+images across the gutter stay together.
 
 Without a caption in the config, an image's embedded XMP/IPTC title and
 description (as written by digiKam, Lightroom and similar) are used. EXIF

@@ -6,9 +6,8 @@ import { viewHref } from '../lib/routes.ts';
 
 interface Props {
   gallery: Gallery;
-  siteTitle: string;
 }
-const { gallery: g, siteTitle } = Astro.props;
+const { gallery: g } = Astro.props;
 const seq = viewHref(g, 'sequence');
 const plates = g.frames.filter((f) => f.kind === 'plate');
 // Cells take the shape of the widest frame, between square and 2:1, so
@@ -16,7 +15,7 @@ const plates = g.frames.filter((f) => f.kind === 'plate');
 const cell = Math.min(2, Math.max(1, ...plates.map((f) => f.aspect)));
 ---
 
-<GalleryBar gallery={g} view="grid" siteTitle={siteTitle} />
+<GalleryBar gallery={g} view="grid" />
 {g.introHtml && <div class="intro prose" set:html={g.introHtml} />}
 <ol class="grid" style={`--cell: ${cell.toFixed(4)}`}>
   {
