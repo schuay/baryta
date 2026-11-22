@@ -10,6 +10,12 @@ galleries:
   - china-1946
   - worthington
 
+# Galleries reachable only at /p/<key>/ and linked from nowhere. Make keys
+# with `npm run new-key`; anyone with site.yaml has the links, so keep it
+# private. (This example key is public, being in the repository.)
+private:
+  work-in-progress: K7bq2mWfXv0aT9cLr3yNdQ
+
 pages:
   - about.md
   - contact.md

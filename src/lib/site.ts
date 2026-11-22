@@ -1,6 +1,6 @@
 import { loadSite } from './load.ts';
 import { CONTENT_DIR } from './env.ts';
-import type { Gallery, Site } from './model.ts';
+import type { Site } from './model.ts';
 
 let built: Promise<Site> | undefined;
 const reported = new Set<string>();
@@ -22,8 +22,4 @@ export function getSite(): Promise<Site> {
   if (import.meta.env.DEV) return loadSite({ contentDir: CONTENT_DIR, drafts: true }).then(report);
   built ??= loadSite({ contentDir: CONTENT_DIR, drafts: false }).then(report);
   return built;
-}
-
-export function listedGalleries(site: Site): Gallery[] {
-  return site.galleries.filter((g) => !g.draft);
 }

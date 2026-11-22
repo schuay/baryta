@@ -4,21 +4,24 @@ import Picture from '../components/Picture.astro';
 import { getSite } from '../lib/site.ts';
 
 const site = await getSite();
+// The dev server also lists drafts and private galleries, marked.
+const shown = site.galleries.filter((g) => g.visibility === 'public' || import.meta.env.DEV);
 ---
 
 <Base site={site}>
   <ul class="contents">
     {
-      site.galleries.map((g, i) => (
+      shown.map((g, i) => (
         <li>
-          <a href={`/${g.slug}/`}>
+          <a href={g.path}>
             <div class="cover">
               <Picture img={g.cover} alt="" sizes="(max-width: 640px) 92vw, 420px" loading={i < 6 ? 'eager' : 'lazy'} />
             </div>
             <span class="contents-title">{g.title}</span>
             <span class="contents-meta">
               {[g.year, `${g.imageCount} ${g.imageCount === 1 ? 'photograph' : 'photographs'}`].filter(Boolean).join(', ')}
-              {g.draft && ', draft'}
+              {g.visibility === 'draft' && ', draft'}
+              {g.visibility === 'private' && ', private link'}
             </span>
           </a>
         </li>

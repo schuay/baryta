@@ -14,8 +14,10 @@ interface Props {
   current?: string;
   /** Book pages drawn as paper; darkens the ground. */
   paper?: boolean;
+  /** Not linked from the site: keep out of search engines, and keep the URL out of Referer headers. */
+  unlisted?: boolean;
 }
-const { site, title, theme = site.theme, fill = false, current, paper = false } = Astro.props;
+const { site, title, theme = site.theme, fill = false, current, paper = false, unlisted = false } = Astro.props;
 const pageTitle = title ? `${title} — ${site.title}` : site.title;
 ---
 
@@ -25,7 +27,9 @@ const pageTitle = title ? `${title} — ${site.title}` : site.title;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{pageTitle}</title>
-    {site.description && <meta name="description" content={site.description} />}
+    {site.description && !unlisted && <meta name="description" content={site.description} />}
+    {unlisted && <meta name="robots" content="noindex, nofollow" />}
+    {unlisted && <meta name="referrer" content="no-referrer" />}
   </head>
   <body class:list={{ fill }}>
     <header class="masthead">

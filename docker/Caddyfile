@@ -6,10 +6,24 @@
 	@immutable path /_img/* /_astro/*
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
 
+	# Private galleries: keep them out of search engines and Referer headers.
+	@private path /p/*
+	header @private {
+		X-Robots-Tag "noindex, nofollow"
+		Referrer-Policy no-referrer
+	}
+
 	file_server
 
 	handle_errors {
 		rewrite * /{err.status_code}.html
-		file_server
+		# Private galleries: keep them out of search engines and Referer headers.
+	@private path /p/*
+	header @private {
+		X-Robots-Tag "noindex, nofollow"
+		Referrer-Policy no-referrer
+	}
+
+	file_server
 	}
 }

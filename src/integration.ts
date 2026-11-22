@@ -53,6 +53,9 @@ export default function folio(): AstroIntegration {
         const files = usedImageFiles(site);
         await Promise.all(files.map((f) => copyFile(path.join(IMG_CACHE_DIR, f), path.join(out, f))));
         logger.info(`copied ${files.length} image derivatives`);
+        for (const g of site.galleries.filter((g) => g.visibility === 'private')) {
+          logger.info(`private: ${g.slug} at ${g.path}`);
+        }
       },
     },
   };

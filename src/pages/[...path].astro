@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Sequence from '../components/Sequence.astro';
+import Grid from '../components/Grid.astro';
+import { getSite } from '../lib/site.ts';
+import { otherView } from '../lib/routes.ts';
+import type { Gallery, Page, View } from '../lib/model.ts';
+
+type Props = { gallery: Gallery; view: View } | { page: Page };
+
+// Every gallery view and text page. A gallery's primary view is at its path,
+// the other view one level below; private galleries live under /p/<key>/.
+export async function getStaticPaths() {
+  const site = await getSite();
+  const strip = (p: string) => p.replace(/^\/|\/$/g, '');
+  return [
+    ...site.galleries.flatMap((gallery) => {
+      const other = otherView(gallery.view);
+      return [
+        { params: { path: strip(gallery.path) }, props: { gallery, view: gallery.view } },
+        { params: { path: `${strip(gallery.path)}/${other}` }, props: { gallery, view: other } },
+      ];
+    }),
+    ...site.pages.map((page) => ({ params: { path: page.slug }, props: { page } })),
+  ];
+}
+
+const props = Astro.props as Props;
+const site = await getSite();
+---
+
+{
+  'gallery' in props ? (
+    <Base
+      site={site}
+      title={props.gallery.title}
+      theme={props.gallery.theme}
+      paper={props.gallery.paper}
+      fill={props.view === 'sequence'}
+      unlisted={props.gallery.visibility !== 'public'}
+    >
+      {props.view === 'sequence' ? (
+        <Sequence gallery={props.gallery} siteTitle={site.title} />
+      ) : (
+        <Grid gallery={props.gallery} siteTitle={site.title} />
+      )}
+    </Base>
+  ) : (
+    <Base site={site} title={props.page.title} current={props.page.slug}>
+      <article class="page prose">
+        <h1>{props.page.title}</h1>
+        <Fragment set:html={props.page.html} />
+      </article>
+    </Base>
+  )
+}

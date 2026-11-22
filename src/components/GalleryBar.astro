@@ -15,7 +15,8 @@ const views: View[] = ['sequence', 'grid'];
   <a class="bar-home" href="/">{siteTitle}</a>
   <h1 class="gallery-title">
     {g.title}
-    {g.draft && <span class="draft">Draft, not published</span>}
+    {g.visibility === 'draft' && <span class="draft">Draft, not published</span>}
+    {import.meta.env.DEV && g.visibility === 'private' && <span class="draft">Private link</span>}
   </h1>
   <nav class="view-nav" aria-label="View">
     {

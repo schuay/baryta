@@ -5,13 +5,13 @@ import { LineCounter, parseDocument, isNode, type Document } from 'yaml';
 import { marked } from 'marked';
 import type { z } from 'astro/zod';
 import { GalleryFile, SiteFile } from './schema.ts';
-import type { Gallery, Img, Page, Site } from './model.ts';
+import type { Gallery, Img, Page, Site, Visibility } from './model.ts';
 import { processImage } from './images.ts';
 import { buildFrames, imageRefs } from './frames.ts';
 import { BUILTIN_LAYOUTS } from './layout.ts';
 
 const IMAGE_EXT = /\.(jpe?g|png|tiff?|webp|avif)$/i;
-const RESERVED_SLUGS = new Set(['_img', '_astro', 'index']);
+const RESERVED_SLUGS = new Set(['_img', '_astro', 'index', 'p']);
 const DEFAULT_MAX_EDGE = 2560;
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
 
@@ -150,7 +150,7 @@ async function loadGallery(
   contentDir: string,
   slug: string,
   site: SiteFile,
-  draft: boolean,
+  visibility: Visibility,
   warnings: string[],
 ): Promise<Gallery> {
   const dir = path.join(contentDir, 'galleries', slug);
@@ -190,8 +190,11 @@ async function loadGallery(
   });
   if (problems.length) throw new ContentError(problems);
 
+  const key = site.private?.[slug];
   return {
     slug,
+    visibility,
+    path: visibility === 'private' ? `/p/${key}/` : `/${slug}/`,
     title: g.title,
     year: g.year === undefined ? undefined : String(g.year),
     introHtml: frames[0]?.kind === 'text' ? frames[0].html : undefined,
@@ -203,7 +206,6 @@ async function loadGallery(
     plateCount: frames.filter((f) => f.kind === 'plate').length,
     imageCount: files.length,
     captionLines,
-    draft,
   };
 }
 
@@ -226,7 +228,7 @@ async function loadPage(contentDir: string, name: string, where: (msg: string) =
 
 export interface LoadOptions {
   contentDir: string;
-  /** Include galleries not listed in site.yaml, marked as drafts. */
+  /** Include galleries not named in site.yaml, as drafts. */
   drafts: boolean;
 }
 
@@ -236,13 +238,23 @@ export async function loadSite({ contentDir, drafts }: LoadOptions): Promise<Sit
 
   const problems: string[] = [];
   const listed = site.galleries;
+  const privateSlugs = Object.keys(site.private ?? {});
   listed.forEach((slug, i) => {
     if (RESERVED_SLUGS.has(slug)) problems.push(where(['galleries', i], `reserved name: ${slug}`));
     if (listed.indexOf(slug) !== i) problems.push(where(['galleries', i], `gallery listed twice: ${slug}`));
+    if (privateSlugs.includes(slug)) problems.push(where(['galleries', i], `gallery is both listed and private: ${slug}`));
   });
-  for (const [i, slug] of listed.entries()) {
+  const keys = Object.values(site.private ?? {});
+  privateSlugs.forEach((slug, i) => {
+    if (keys.indexOf(keys[i]!) !== i) problems.push(where(['private', slug], `key used twice: ${slug}`));
+  });
+  const named: [string, (string | number)[]][] = [
+    ...listed.map((slug, i): [string, (string | number)[]] => [slug, ['galleries', i]]),
+    ...privateSlugs.map((slug): [string, (string | number)[]] => [slug, ['private', slug]]),
+  ];
+  for (const [slug, at] of named) {
     if (!(await isFile(path.join(contentDir, 'galleries', slug, 'gallery.yaml')))) {
-      problems.push(where(['galleries', i], `missing galleries/${slug}/gallery.yaml`));
+      problems.push(where(at, `missing galleries/${slug}/gallery.yaml`));
     }
   }
   const pageSlugs = (site.pages ?? []).map((p) => p.replace(/\.md$/, ''));
@@ -252,19 +264,20 @@ export async function loadSite({ contentDir, drafts }: LoadOptions): Promise<Sit
   if (problems.length) throw new ContentError(problems);
 
   const galleriesDir = path.join(contentDir, 'galleries');
-  const unlisted: string[] = [];
+  const unnamed: string[] = [];
   if (await isDir(galleriesDir)) {
     for (const name of (await readdir(galleriesDir)).sort(collator.compare)) {
-      if (listed.includes(name)) continue;
-      if (await isFile(path.join(galleriesDir, name, 'gallery.yaml'))) unlisted.push(name);
+      if (listed.includes(name) || privateSlugs.includes(name)) continue;
+      if (await isFile(path.join(galleriesDir, name, 'gallery.yaml'))) unnamed.push(name);
     }
   }
-  if (unlisted.length && !drafts) warnings.push(`not built (not listed in site.yaml): ${unlisted.join(', ')}`);
+  if (unnamed.length && !drafts) warnings.push(`not built (not in site.yaml): ${unnamed.join(', ')}`);
 
-  const draftSlugs = drafts ? unlisted.filter((s) => !RESERVED_SLUGS.has(s) && !pageSlugs.includes(s)) : [];
+  const draftSlugs = drafts ? unnamed.filter((s) => !RESERVED_SLUGS.has(s) && !pageSlugs.includes(s)) : [];
   const galleries = await Promise.all([
-    ...listed.map((slug) => loadGallery(contentDir, slug, site, false, warnings)),
-    ...draftSlugs.map((slug) => loadGallery(contentDir, slug, site, true, warnings)),
+    ...listed.map((slug) => loadGallery(contentDir, slug, site, 'public', warnings)),
+    ...privateSlugs.map((slug) => loadGallery(contentDir, slug, site, 'private', warnings)),
+    ...draftSlugs.map((slug) => loadGallery(contentDir, slug, site, 'draft', warnings)),
   ]);
   const pages = await Promise.all(
     (site.pages ?? []).map((name, i) => loadPage(contentDir, name, (msg) => where(['pages', i], msg))),

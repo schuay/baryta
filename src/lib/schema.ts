@@ -145,6 +145,16 @@ export const SiteFile = z.strictObject({
     .optional(),
   /** Named page layouts, added to the built-in ones. */
   layouts: z.record(Slug, z.array(Slot).min(1)).optional(),
+  /**
+   * Galleries published only under /p/<key>/, linked from nowhere. The key is
+   * the only secret: keep site.yaml private.
+   */
+  private: z
+    .record(
+      Slug,
+      z.string().regex(/^[A-Za-z0-9_-]{22,}$/, 'use a random key of at least 22 letters, digits, - or _; `npm run new-key` makes one'),
+    )
+    .optional(),
 });
 
 export type GalleryFile = z.infer<typeof GalleryFile>;

@@ -74,6 +74,7 @@ const galleries = {
     'american-photographs/havana.jpg', 'american-photographs/shack-town.jpg', 'american-photographs/weedpatch.jpg',
     'plant-forms/acanthus.jpg', 'plant-forms/papaver.jpg', 'china-1946/mother.jpg', 'china-1946/rice.jpg',
   ],
+  'work-in-progress': ['plant-forms/blumenbachia.jpg', 'plant-forms/cucurbita.jpg', 'plant-forms/nigella.jpg'],
   // Not listed in site.yaml: visible in the dev server only.
   'colour-slides': {
     'coal.jpg': 'Loading coal into a lake freighter at the Pennsylvania Railroad docks, Sandusky, Ohio LCCN2017878195.jpg',

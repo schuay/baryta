@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "node --test tests/*.test.ts tests/*.test.mjs",
-    "fetch-example": "node scripts/fetch-example.mjs"
+    "fetch-example": "node scripts/fetch-example.mjs",
+    "new-key": "node scripts/new-key.mjs"
   },
   "dependencies": {
     "@fontsource-variable/source-serif-4": "^5.3.1",

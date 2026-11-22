@@ -45,8 +45,23 @@ images:
   max: 2560           # longest edge of the largest published derivative
 ```
 
-A gallery folder that is not listed in `galleries` is not built and none of its
+A gallery folder that is not named in `site.yaml` is not built and none of its
 images are published. The dev server shows such galleries as drafts.
+
+### Private galleries
+
+```yaml
+private:
+  studio-visit: K7bq2mWfXv0aT9cLr3yNdQ   # npm run new-key
+```
+
+A private gallery is published at `/p/<key>/` only: not under its folder name,
+not in the navigation, not on the start page. Its pages ask search engines not
+to index them and browsers not to send the address on as a referrer. The build
+prints each private address. To revoke a link, change the key and rebuild.
+
+Anyone with the link can view and forward it; it is not a login. The key is the
+only secret, so keep `site.yaml` private.
 
 ### gallery.yaml
 

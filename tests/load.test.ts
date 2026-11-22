@@ -301,9 +301,47 @@ test('unlisted galleries are not built, and their images are not published', asy
 
   const withDrafts = await loadSite({ contentDir: dir, drafts: true });
   const secret = withDrafts.galleries.find((g) => g.slug === 'secret')!;
-  assert.equal(secret.draft, true);
+  assert.equal(secret.visibility, 'draft');
   const published = new Set(usedImageFiles(site));
   for (const v of secret.cover.variants) assert.ok(!published.has(path.basename(v.jpeg)));
+});
+
+test('private galleries are built at /p/<key>/ only', async () => {
+  const key = 'abcdefghijklmnopqrstuv';
+  const dir = await content({
+    'site.yaml': `title: T\ngalleries: [public]\nprivate:\n  secret: ${key}\n`,
+    'galleries/public/gallery.yaml': 'title: Public\n',
+    'galleries/public/a.jpg': grey,
+    'galleries/secret/gallery.yaml': 'title: Secret\n',
+    'galleries/secret/b.jpg': grey,
+  });
+  for (const drafts of [false, true]) {
+    const site = await loadSite({ contentDir: dir, drafts });
+    assert.deepEqual(
+      site.galleries.map((g) => [g.slug, g.visibility, g.path]),
+      [
+        ['public', 'public', '/public/'],
+        ['secret', 'private', `/p/${key}/`],
+      ],
+    );
+    assert.doesNotMatch(site.warnings.join('\n'), /secret/);
+  }
+});
+
+test('private gallery configuration is checked', async () => {
+  const key = 'abcdefghijklmnopqrstuv';
+  const base = { 'galleries/g/gallery.yaml': 'title: G\n', 'galleries/g/a.jpg': grey, 'galleries/h/gallery.yaml': 'title: H\n', 'galleries/h/b.jpg': grey };
+  const cases: [string, RegExp][] = [
+    [`galleries: [g]\nprivate:\n  g: ${key}\n`, /^site\.yaml:2:\d+: gallery is both listed and private: g/],
+    [`galleries: [g]\nprivate:\n  h: short\n`, /^site\.yaml:4:\d+: private\.h: use a random key of at least 22/],
+    [`galleries: [g]\nprivate:\n  nope: ${key}\n`, /^site\.yaml:4:\d+: missing galleries\/nope\/gallery\.yaml/],
+    [`galleries: [g]\nprivate:\n  h: ${key}\n  i: ${key}\n`, /key used twice/],
+    [`galleries: [p]\n`, /reserved name: p/],
+  ];
+  for (const [yaml, expected] of cases) {
+    const dir = await content({ ...base, 'site.yaml': `title: T\n${yaml}` });
+    assert.match((await problems(dir)).join('\n'), expected, yaml);
+  }
 });
 
 test('images not used in a gallery are reported', async () => {

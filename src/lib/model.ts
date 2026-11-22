@@ -99,8 +99,14 @@ export interface TextFrame {
 
 export type Frame = PlateFrame | TextFrame;
 
+/** public: listed in the navigation; private: only at its secret path; draft: dev server only. */
+export type Visibility = 'public' | 'private' | 'draft';
+
 export interface Gallery {
   slug: string;
+  visibility: Visibility;
+  /** URL path of the primary view, with trailing slash. */
+  path: string;
   title: string;
   year?: string;
   introHtml?: string;
@@ -114,7 +120,6 @@ export interface Gallery {
   imageCount: number;
   /** Caption block height in lines, the maximum over all columns. */
   captionLines: number;
-  draft: boolean;
 }
 
 export interface Page {
@@ -128,7 +133,7 @@ export interface Site {
   description?: string;
   footer?: string;
   theme: Theme;
-  /** Listed galleries in nav order, followed by drafts when drafts are enabled. */
+  /** Public galleries in nav order, then private ones, then drafts when enabled. */
   galleries: Gallery[];
   pages: Page[];
   warnings: string[];
