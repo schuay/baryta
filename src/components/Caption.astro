@@ -1,0 +1,25 @@
+---
+import type { Caption } from '../lib/model.ts';
+
+interface Props {
+  caption?: Caption;
+}
+const { caption: c } = Astro.props;
+---
+
+{
+  c && (
+    <div class="caption">
+      {(c.title || c.year) && (
+        <p class="caption-head">
+          {c.title && <i>{c.title}</i>}
+          {c.title && c.year && ', '}
+          {c.year}
+        </p>
+      )}
+      {c.medium && <p>{c.medium}</p>}
+      {c.size && <p>{c.size}</p>}
+      {c.text && <p>{c.text}</p>}
+    </div>
+  )
+}

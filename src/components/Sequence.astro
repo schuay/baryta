@@ -1,0 +1,87 @@
+---
+import type { Gallery } from '../lib/model.ts';
+import Picture from './Picture.astro';
+import Caption from './Caption.astro';
+import GalleryBar from './GalleryBar.astro';
+import { viewHref } from '../lib/routes.ts';
+
+interface Props {
+  gallery: Gallery;
+  siteTitle: string;
+}
+const { gallery: g, siteTitle } = Astro.props;
+// The page number always occupies the first caption line.
+const capLines = Math.max(1, g.captionLines);
+const firstImage = g.frames.findIndex((f) => f.kind === 'image');
+---
+
+<GalleryBar gallery={g} view="sequence" siteTitle={siteTitle} />
+<section
+  class="sequence"
+  aria-roledescription="carousel"
+  aria-label={g.title}
+  style={`--cap-lines: ${capLines}`}
+  data-first-image={firstImage}
+  data-index-href={viewHref(g, 'grid')}
+>
+  <div class="track" tabindex="0">
+    {
+      g.frames.map((f, i) => (
+        <div
+          class="frame"
+          role="group"
+          aria-roledescription="slide"
+          aria-label={f.kind === 'image' ? `${f.number} of ${g.imageCount}` : 'Introduction'}
+          data-number={f.kind === 'image' ? f.number : undefined}
+        >
+          <div class="stage">
+            {f.kind === 'image' && (
+              <figure
+                class="plate"
+                data-border={f.border}
+                data-wide={f.image.width / f.image.height >= 1.6 ? '' : undefined}
+                style={`--ar: ${(f.image.width / f.image.height).toFixed(5)}; --natural: ${f.image.width}px`}
+              >
+                <Picture
+                  img={f.image}
+                  alt={f.alt}
+                  sizes={`min(calc(100vw - 32px), calc((100vh - 220px) * ${(f.image.width / f.image.height).toFixed(4)}), 1680px)`}
+                  loading={Math.abs(i - firstImage) <= 1 ? 'eager' : 'lazy'}
+                  fetchpriority={i === firstImage ? 'high' : undefined}
+                />
+                <figcaption>
+                  <Caption caption={f.caption} />
+                  <span class="folio">
+                    {f.number}&thinsp;/&thinsp;{g.imageCount}
+                  </span>
+                </figcaption>
+              </figure>
+            )}
+            {f.kind === 'text' && <div class="text-frame prose" set:html={f.html} />}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+  <script is:inline>
+    // Jump to #n before first paint; the module script takes over afterwards.
+    {
+      const track = document.currentScript.previousElementSibling;
+      const seq = track.parentElement;
+      const n = parseInt(location.hash.slice(1), 10);
+      if (n > 0) track.scrollLeft = (n - 1 + Number(seq.dataset.firstImage)) * track.clientWidth;
+    }
+  </script>
+  <button class="step prev" type="button" aria-label="Previous">
+    <svg viewBox="0 0 16 40" aria-hidden="true"><polyline points="14,2 2,20 14,38"></polyline></svg>
+  </button>
+  <button class="step next" type="button" aria-label="Next">
+    <svg viewBox="0 0 16 40" aria-hidden="true"><polyline points="2,2 14,20 2,38"></polyline></svg>
+  </button>
+</section>
+
+<script>
+  import { initSequence } from '../scripts/sequence.ts';
+  const el = document.querySelector<HTMLElement>('.sequence');
+  if (el) initSequence(el);
+</script>

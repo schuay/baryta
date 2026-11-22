@@ -1,0 +1,35 @@
+---
+import type { Gallery } from '../lib/model.ts';
+import Picture from './Picture.astro';
+import GalleryBar from './GalleryBar.astro';
+import { viewHref } from '../lib/routes.ts';
+
+interface Props {
+  gallery: Gallery;
+  siteTitle: string;
+}
+const { gallery: g, siteTitle } = Astro.props;
+const seq = viewHref(g, 'sequence');
+---
+
+<GalleryBar gallery={g} view="grid" siteTitle={siteTitle} />
+{g.introHtml && <div class="intro prose" set:html={g.introHtml} />}
+<ol class="grid">
+  {
+    g.frames.map(
+      (f, i) =>
+        f.kind === 'image' && (
+          <li>
+            <a href={`${seq}#${f.number}`} aria-label={`${f.number}: ${f.alt}`}>
+              <Picture
+                img={f.image}
+                alt=""
+                sizes="(max-width: 640px) 45vw, 260px"
+                loading={i < 12 ? 'eager' : 'lazy'}
+              />
+            </a>
+          </li>
+        ),
+    )
+  }
+</ol>

@@ -1,0 +1,460 @@
+/* Neutral greys only (R = G = B): tinted interface greys shift how neutral
+   prints are perceived. */
+:root {
+  --paper: #ffffff;
+  --ink: #1f1f1f;
+  --quiet: #6b6b6b;
+  --rule: #e2e2e2;
+
+  --font: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+  --s-small: 0.875rem;
+  --s-body: 1.125rem;
+  --s-title: 1.3125rem;
+  --lh: 1.45;
+
+  /* Side margin; the step buttons sit inside it on wide screens. */
+  --mx: clamp(16px, 6vw, 112px);
+  --max-w: 1680px;
+  /* Inline padding that keeps content in a centred column of at most --max-w.
+     The percentage resolves against the element using it. */
+  --gutter: max(var(--mx), (100% - var(--max-w)) / 2);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --paper: #1c1c1c;
+  --ink: #e4e4e4;
+  --quiet: #9c9c9c;
+  --rule: #3a3a3a;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  line-height: var(--lh);
+}
+
+body.fill {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+h1,
+p,
+ol,
+ul,
+figure {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+img {
+  display: block;
+}
+
+picture {
+  display: contents;
+}
+
+/* Masthead */
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em 2em;
+  flex-wrap: wrap;
+  padding: clamp(18px, 3.5vh, 40px) var(--gutter) 0;
+}
+
+.site-title {
+  font-size: var(--s-title);
+  font-weight: 450;
+  letter-spacing: 0.005em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.75em;
+  font-size: var(--s-small);
+}
+
+.site-nav a,
+.view-nav a {
+  color: var(--quiet);
+}
+
+.site-nav a:hover,
+.view-nav a:hover,
+.site-nav a[aria-current],
+.view-nav a[aria-current] {
+  color: var(--ink);
+}
+
+/* Gallery bar: title and view switch, the running head of a gallery. */
+
+.gallery-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5em 2em;
+  flex-wrap: wrap;
+  padding: clamp(14px, 3vh, 36px) var(--gutter) 0;
+  font-size: var(--s-small);
+}
+
+.bar-home {
+  display: none;
+}
+
+.gallery-title {
+  font-size: var(--s-small);
+  font-weight: inherit;
+  font-style: italic;
+}
+
+.draft {
+  font-style: normal;
+  color: var(--quiet);
+  margin-left: 1em;
+}
+
+.view-nav {
+  display: flex;
+  gap: 1.5em;
+}
+
+/* Sequence view */
+
+.sequence {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.track {
+  height: 100%;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline: none;
+}
+
+.frame {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding: clamp(12px, 3vh, 40px) var(--gutter) clamp(16px, 4.5vh, 56px);
+}
+
+.stage {
+  container-type: size;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Image plus caption block. The caption block has the same height on every
+   frame of a gallery, so captions and page numbers stay put while stepping. */
+.plate {
+  --cap: calc(var(--cap-lines) * var(--lh) * 1em + 0.9em);
+  font-size: var(--s-small);
+  width: min(100cqw, (100cqh - var(--cap)) * var(--ar), var(--natural));
+  display: flex;
+  flex-direction: column;
+}
+
+.plate img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--ar);
+}
+
+.plate[data-border='hairline'] img {
+  outline: 1px solid var(--rule);
+}
+
+.plate figcaption {
+  height: var(--cap);
+  padding-top: 0.9em;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2em;
+}
+
+.caption {
+  min-width: 0;
+  color: var(--quiet);
+}
+
+.caption-head {
+  color: var(--ink);
+}
+
+.folio {
+  flex: none;
+  margin-left: auto;
+  color: var(--quiet);
+  font-variant-numeric: oldstyle-nums tabular-nums;
+}
+
+.text-frame {
+  max-width: 30em;
+  font-size: var(--s-body);
+  align-self: center;
+}
+
+.step {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--mx);
+  height: 50%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--quiet);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.step:hover {
+  color: var(--ink);
+}
+
+.step:disabled {
+  visibility: hidden;
+}
+
+.step svg {
+  width: 12px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Inside the margin next to the content column. */
+.prev {
+  left: calc(var(--gutter) - var(--mx));
+}
+
+.next {
+  right: calc(var(--gutter) - var(--mx));
+}
+
+/* Touch screens swipe; narrow screens have no room in the margin. */
+@media (hover: none), (max-width: 640px) {
+  .step {
+    display: none;
+  }
+}
+
+/* Grid view */
+
+.intro {
+  padding: clamp(20px, 4vh, 48px) var(--gutter) 0;
+}
+
+.intro > *,
+.page > * {
+  max-width: 32em;
+}
+
+.grid {
+  list-style: none;
+  padding: clamp(24px, 5vh, 64px) var(--gutter) clamp(48px, 8vh, 96px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(130px, 17vw, 240px), 1fr));
+  gap: clamp(24px, 5vw, 72px) clamp(16px, 4vw, 56px);
+}
+
+.grid a {
+  display: block;
+  position: relative;
+  aspect-ratio: 1;
+}
+
+/* Absolute so the image cannot stretch its aspect-ratio box. */
+.grid img,
+.cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.grid a:hover img {
+  opacity: 0.85;
+}
+
+/* Start page: table of contents */
+
+.contents {
+  list-style: none;
+  padding: clamp(32px, 8vh, 96px) var(--gutter) clamp(48px, 8vh, 96px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: clamp(40px, 6vw, 88px) clamp(24px, 4vw, 64px);
+}
+
+.contents a {
+  display: flex;
+  flex-direction: column;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  margin-bottom: 1em;
+}
+
+.cover img {
+  object-position: left bottom;
+}
+
+.contents-title {
+  font-style: italic;
+}
+
+.contents-meta {
+  font-size: var(--s-small);
+  color: var(--quiet);
+}
+
+.contents a:hover .contents-title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+/* Text pages */
+
+.prose {
+  font-size: var(--s-body);
+  line-height: 1.55;
+}
+
+.prose p + p,
+.prose p + ul,
+.prose ul + p {
+  margin-top: 0.8em;
+}
+
+.prose ul {
+  padding-left: 1.2em;
+}
+
+.prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.page {
+  padding: clamp(32px, 8vh, 96px) var(--gutter) clamp(48px, 8vh, 96px);
+}
+
+.page h1 {
+  font-size: var(--s-title);
+  font-weight: 450;
+  margin-bottom: 1em;
+}
+
+.site-footer {
+  padding: 0 var(--gutter) clamp(20px, 4vh, 40px);
+  font-size: var(--s-small);
+  color: var(--quiet);
+}
+
+/* Short landscape screens, e.g. phones on their side: give the image the
+   height. The masthead folds into the gallery bar, and captions of all but
+   wide images move beside the image. */
+@media (max-height: 520px) and (orientation: landscape) {
+  body.fill .masthead {
+    display: none;
+  }
+  body.fill .bar-home {
+    display: inline;
+    margin-right: auto;
+  }
+  body.fill .gallery-bar {
+    padding-top: 10px;
+  }
+  body.fill .frame {
+    padding-block: 10px;
+  }
+  .plate:not([data-wide]) {
+    --capw: 13em;
+    width: auto;
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .plate:not([data-wide]) img {
+    width: min(100cqw - var(--capw), 100cqh * var(--ar), var(--natural));
+  }
+  .plate:not([data-wide]) figcaption {
+    width: var(--capw);
+    height: auto;
+    padding: 0 0 0 1.25em;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0.6em;
+  }
+  .plate:not([data-wide]) .folio {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSite } from '../lib/site.ts';
+
+const site = await getSite();
+---
+
+<Base site={site} title="Not found">
+  <article class="page prose">
+    <h1>Not found</h1>
+    <p>There is nothing at this address. <a href="/">Go to the start page.</a></p>
+  </article>
+</Base>

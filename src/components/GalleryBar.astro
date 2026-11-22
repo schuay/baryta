@@ -1,0 +1,29 @@
+---
+import type { Gallery, View } from '../lib/model.ts';
+import { VIEW_LABELS, viewHref } from '../lib/routes.ts';
+
+interface Props {
+  gallery: Gallery;
+  view: View;
+  siteTitle: string;
+}
+const { gallery: g, view, siteTitle } = Astro.props;
+const views: View[] = ['sequence', 'grid'];
+---
+
+<div class="gallery-bar">
+  <a class="bar-home" href="/">{siteTitle}</a>
+  <h1 class="gallery-title">
+    {g.title}
+    {g.draft && <span class="draft">Draft, not published</span>}
+  </h1>
+  <nav class="view-nav" aria-label="View">
+    {
+      views.map((v) => (
+        <a href={viewHref(g, v)} aria-current={v === view ? 'page' : undefined}>
+          {VIEW_LABELS[v]}
+        </a>
+      ))
+    }
+  </nav>
+</div>

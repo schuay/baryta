@@ -1,0 +1,48 @@
+---
+import '@fontsource-variable/source-serif-4/opsz.css';
+import '@fontsource-variable/source-serif-4/opsz-italic.css';
+import '../styles/global.css';
+import type { Site, Theme } from '../lib/model.ts';
+
+interface Props {
+  site: Site;
+  title?: string;
+  theme?: Theme;
+  /** Fit the page to the viewport without page scrolling (sequence view). */
+  fill?: boolean;
+  /** Slug of the current page, to mark its nav link. */
+  current?: string;
+}
+const { site, title, theme = site.theme, fill = false, current } = Astro.props;
+const pageTitle = title ? `${title} — ${site.title}` : site.title;
+---
+
+<!doctype html>
+<html lang="en" data-theme={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    {site.description && <meta name="description" content={site.description} />}
+  </head>
+  <body class:list={{ fill }}>
+    <header class="masthead">
+      <a class="site-title" href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>{site.title}</a>
+      {
+        site.pages.length > 0 && (
+          <nav class="site-nav" aria-label="Site">
+            {site.pages.map((p) => (
+              <a href={`/${p.slug}/`} aria-current={current === p.slug ? 'page' : undefined}>
+                {p.title}
+              </a>
+            ))}
+          </nav>
+        )
+      }
+    </header>
+    <main>
+      <slot />
+    </main>
+    {!fill && site.footer && <footer class="site-footer">{site.footer}</footer>}
+  </body>
+</html>
