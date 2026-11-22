@@ -10,7 +10,7 @@ import { serve } from './serve.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const DIST = path.join(ROOT, 'dist');
-const CONTENT = process.env.FOLIO_CONTENT ?? path.join(ROOT, 'example');
+const CONTENT = process.env.BARYTA_CONTENT ?? path.join(ROOT, 'example');
 const BINARY = /\.(jpe?g|avif|png|webp|woff2?)$/i;
 
 const site = existsSync(path.join(CONTENT, 'site.yaml')) ? parse(await readFile(path.join(CONTENT, 'site.yaml'), 'utf8')) : {};

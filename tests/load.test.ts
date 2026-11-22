@@ -6,8 +6,8 @@ import path from 'node:path';
 import sharp from 'sharp';
 import type { Gallery, PlateFrame } from '../src/lib/model.ts';
 
-const tmp = await mkdtemp(path.join(os.tmpdir(), 'folio-test-'));
-process.env.FOLIO_CACHE = path.join(tmp, 'cache');
+const tmp = await mkdtemp(path.join(os.tmpdir(), 'baryta-test-'));
+process.env.BARYTA_CACHE = path.join(tmp, 'cache');
 const { loadSite, usedImageFiles, ContentError } = await import('../src/lib/load.ts');
 
 const XMP = `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt><rdf:li xml:lang="x-default">Embedded title</rdf:li></rdf:Alt></dc:title></rdf:Description></rdf:RDF></x:xmpmeta>`;
@@ -357,7 +357,7 @@ test('neutral images are encoded greyscale, toned ones keep colour', async () =>
   assert.ok(a && b);
   assert.equal(a.neutral, true);
   assert.equal(b.neutral, false);
-  const cache = path.join(process.env.FOLIO_CACHE!, 'img');
+  const cache = path.join(process.env.BARYTA_CACHE!, 'img');
   const meta = await sharp(path.join(cache, path.basename(a.variants[0]!.jpeg))).metadata();
   assert.equal(meta.channels, 1);
   const metaToned = await sharp(path.join(cache, path.basename(b.variants[0]!.jpeg))).metadata();

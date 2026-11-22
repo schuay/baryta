@@ -1,4 +1,4 @@
-# folio
+# Baryta
 
 A static site generator for photography portfolios, built on Astro. Galleries
 are folders of images plus a short YAML file. The defaults are tuned for black
@@ -13,8 +13,8 @@ npm run dev             # http://localhost:4321, live reload on content edits
 npm run build           # static site in dist/
 ```
 
-`FOLIO_CONTENT` selects the content directory (default `example/`),
-`FOLIO_CACHE` the image cache (default `.cache/`).
+`BARYTA_CONTENT` selects the content directory (default `example/`),
+`BARYTA_CACHE` the image cache (default `.cache/`).
 
 ## Content
 
@@ -172,8 +172,8 @@ Each source image is analysed once and cached by content hash:
 ## Deployment
 
 ```sh
-FOLIO_CONTENT=/path/to/content docker compose run --rm build
-docker compose up -d web          # Caddy on port 8080 (FOLIO_PORT)
+BARYTA_CONTENT=/path/to/content docker compose run --rm build
+docker compose up -d web          # Caddy on port 8080 (BARYTA_PORT)
 ```
 
 The build container writes each build into a new release directory and

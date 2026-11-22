@@ -1,12 +1,14 @@
 # Build:  docker compose run --rm build
 # Serve:  docker compose up -d web
-# FOLIO_CONTENT points at the content directory (site.yaml, galleries/).
+# BARYTA_CONTENT points at the content directory (site.yaml, galleries/).
+name: baryta
+
 services:
   build:
     build: .
     profiles: [build]
     volumes:
-      - ${FOLIO_CONTENT:-./example}:/content:ro
+      - ${BARYTA_CONTENT:-./example}:/content:ro
       - cache:/cache
       - site:/site
 
@@ -14,7 +16,7 @@ services:
     image: caddy:2
     restart: unless-stopped
     ports:
-      - "${FOLIO_PORT:-8080}:80"
+      - "${BARYTA_PORT:-8080}:80"
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - site:/site:ro

@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'example', 'galleries');
-const UA = 'folio-example-fetch/0.1';
+const UA = 'baryta-example-fetch/0.1';
 const MAX_WIDTH = 3000;
 
 // Gallery -> local file name -> Commons file title, or { title, xmp }.

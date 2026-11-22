@@ -9,7 +9,7 @@ function report(site: Site) {
   for (const w of site.warnings) {
     if (reported.has(w)) continue;
     reported.add(w);
-    console.warn(`[folio] ${w}`);
+    console.warn(`[baryta] ${w}`);
   }
   return site;
 }

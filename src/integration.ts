@@ -11,16 +11,16 @@ import { loadSite, usedImageFiles } from './lib/load.ts';
 
 const TYPES: Record<string, string> = { '.jpg': 'image/jpeg', '.avif': 'image/avif' };
 
-export default function folio(): AstroIntegration {
+export default function baryta(): AstroIntegration {
   return {
-    name: 'folio',
+    name: 'baryta',
     hooks: {
       'astro:config:setup': ({ updateConfig }) => {
         updateConfig({
           vite: {
             plugins: [
               {
-                name: 'folio-dev',
+                name: 'baryta-dev',
                 configureServer(server) {
                   server.watcher.add(CONTENT_DIR);
                   server.watcher.on('all', (_event, file) => {
